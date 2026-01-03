@@ -1,0 +1,1 @@
+python3 train.py --data_dir ./data/MUSIC-AVQA --num_workers 4 --batch_size 128 --epochs 5 --gnn_type GAT --exp_name avqa_gnn_gat_2

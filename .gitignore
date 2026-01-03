@@ -1,0 +1,11 @@
+*.md
+
+gnn_venv/
+checkpoints/
+data/
+logs/
+output/
+temp/
+*.log
+*.tmp
+

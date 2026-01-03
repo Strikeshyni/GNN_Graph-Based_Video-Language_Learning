@@ -1,0 +1,314 @@
+{
+  "GAT": {
+    "accuracy": 11.0,
+    "report": {
+      "drums": {
+        "precision": 0.10869565217391304,
+        "recall": 0.4166666666666667,
+        "f1-score": 0.1724137931034483,
+        "support": 12.0
+      },
+      "guitar": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 9.0
+      },
+      "left": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 6.0
+      },
+      "no": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 14.0
+      },
+      "piano": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 12.0
+      },
+      "right": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 11.0
+      },
+      "three": {
+        "precision": 0.1111111111111111,
+        "recall": 0.5,
+        "f1-score": 0.18181818181818182,
+        "support": 12.0
+      },
+      "two": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 8.0
+      },
+      "violin": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 11.0
+      },
+      "yes": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 5.0
+      },
+      "accuracy": 0.11,
+      "macro avg": {
+        "precision": 0.021980676328502414,
+        "recall": 0.09166666666666667,
+        "f1-score": 0.03542319749216301,
+        "support": 100.0
+      },
+      "weighted avg": {
+        "precision": 0.0263768115942029,
+        "recall": 0.11,
+        "f1-score": 0.042507836990595606,
+        "support": 100.0
+      }
+    }
+  },
+  "GCN": {
+    "accuracy": 8.0,
+    "report": {
+      "drums": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 12.0
+      },
+      "guitar": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 9.0
+      },
+      "left": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 6.0
+      },
+      "no": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 14.0
+      },
+      "piano": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 12.0
+      },
+      "right": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 11.0
+      },
+      "three": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 12.0
+      },
+      "two": {
+        "precision": 0.08,
+        "recall": 1.0,
+        "f1-score": 0.14814814814814814,
+        "support": 8.0
+      },
+      "violin": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 11.0
+      },
+      "yes": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 5.0
+      },
+      "accuracy": 0.08,
+      "macro avg": {
+        "precision": 0.008,
+        "recall": 0.1,
+        "f1-score": 0.014814814814814814,
+        "support": 100.0
+      },
+      "weighted avg": {
+        "precision": 0.0064,
+        "recall": 0.08,
+        "f1-score": 0.011851851851851851,
+        "support": 100.0
+      }
+    }
+  },
+  "GraphSAGE": {
+    "accuracy": 13.0,
+    "report": {
+      "drums": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 12.0
+      },
+      "guitar": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 9.0
+      },
+      "left": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 6.0
+      },
+      "no": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 14.0
+      },
+      "piano": {
+        "precision": 0.13043478260869565,
+        "recall": 1.0,
+        "f1-score": 0.23076923076923078,
+        "support": 12.0
+      },
+      "right": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 11.0
+      },
+      "three": {
+        "precision": 0.125,
+        "recall": 0.08333333333333333,
+        "f1-score": 0.1,
+        "support": 12.0
+      },
+      "two": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 8.0
+      },
+      "violin": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 11.0
+      },
+      "yes": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 5.0
+      },
+      "accuracy": 0.13,
+      "macro avg": {
+        "precision": 0.025543478260869567,
+        "recall": 0.10833333333333332,
+        "f1-score": 0.03307692307692308,
+        "support": 100.0
+      },
+      "weighted avg": {
+        "precision": 0.030652173913043475,
+        "recall": 0.13,
+        "f1-score": 0.03969230769230769,
+        "support": 100.0
+      }
+    }
+  },
+  "GIN": {
+    "accuracy": 15.0,
+    "report": {
+      "drums": {
+        "precision": 0.1111111111111111,
+        "recall": 0.6666666666666666,
+        "f1-score": 0.19047619047619047,
+        "support": 12.0
+      },
+      "guitar": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 9.0
+      },
+      "left": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 6.0
+      },
+      "no": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 14.0
+      },
+      "piano": {
+        "precision": 0.25,
+        "recall": 0.5833333333333334,
+        "f1-score": 0.35,
+        "support": 12.0
+      },
+      "right": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 11.0
+      },
+      "three": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 12.0
+      },
+      "two": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 8.0
+      },
+      "violin": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 11.0
+      },
+      "yes": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 5.0
+      },
+      "accuracy": 0.15,
+      "macro avg": {
+        "precision": 0.03611111111111111,
+        "recall": 0.125,
+        "f1-score": 0.054047619047619046,
+        "support": 100.0
+      },
+      "weighted avg": {
+        "precision": 0.04333333333333333,
+        "recall": 0.15,
+        "f1-score": 0.06485714285714285,
+        "support": 100.0
+      }
+    }
+  }
+}
