@@ -26,8 +26,11 @@ class Trainer:
         
         # Create dataloaders
         print("Loading dataset...")
-        self.train_loader, self.val_loader, self.test_loader, self.idx_to_answer = \
+        self.train_loader, self.val_loader, self.test_loader, self.idx_to_answer, self.class_weights = \
             create_dataloaders(args.data_dir, args.batch_size, args.num_workers)
+        
+        # Move class weights to device
+        self.class_weights = self.class_weights.to(self.device)
         
         # Update num_classes based on dataset
         args.num_classes = len(self.idx_to_answer)
@@ -56,20 +59,31 @@ class Trainer:
                 dropout=args.dropout
             ).to(self.device)
         
-        # Loss and optimizer
-        self.criterion = nn.CrossEntropyLoss()
+        # Loss and optimizer with class weighting to combat imbalance
+        self.criterion = nn.CrossEntropyLoss(weight=self.class_weights)
+        print(f"Using class weights (min={self.class_weights.min():.2f}, max={self.class_weights.max():.2f}, mean={self.class_weights.mean():.2f})")
         self.optimizer = optim.Adam(self.model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
         self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=args.lr_step, gamma=args.lr_gamma)
         
         # Logging
         self.writer = SummaryWriter(log_dir=os.path.join(args.log_dir, f'{args.exp_name}_{datetime.now().strftime("%Y%m%d_%H%M%S")}'))
         self.best_val_acc = 0.0
+        self.start_epoch = 1
         self.history = {
             'train_loss': [],
             'train_acc': [],
             'val_loss': [],
             'val_acc': []
         }
+        
+        # Early stopping
+        self.patience = args.patience
+        self.patience_counter = 0
+        self.early_stop = False
+        
+        # Resume from checkpoint if specified
+        if args.resume:
+            self.load_checkpoint(args.resume)
     
     def train_epoch(self, epoch):
         """Train for one epoch."""
@@ -162,11 +176,17 @@ class Trainer:
         return avg_loss, avg_acc
     
     def train(self):
-        """Main training loop."""
+        """Main training loop with early stopping and resume support."""
         print(f"Starting training on {self.device}")
         print(f"Model parameters: {sum(p.numel() for p in self.model.parameters()):,}")
         
-        for epoch in range(1, self.args.epochs + 1):
+        if self.start_epoch > 1:
+            print(f"Resuming from epoch {self.start_epoch}")
+        
+        if self.patience > 0:
+            print(f"Early stopping enabled with patience={self.patience}")
+        
+        for epoch in range(self.start_epoch, self.args.epochs + 1):
             # Train
             train_loss, train_acc = self.train_epoch(epoch)
             
@@ -194,21 +214,34 @@ class Trainer:
             print(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%")
             print(f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
             
-            # Save best model
+            # Save best model and check early stopping
             if val_acc > self.best_val_acc:
                 self.best_val_acc = val_acc
+                self.patience_counter = 0
                 self.save_checkpoint(epoch, is_best=True)
                 print(f"New best validation accuracy: {val_acc:.2f}%")
+            else:
+                self.patience_counter += 1
+                if self.patience > 0:
+                    print(f"No improvement. Patience: {self.patience_counter}/{self.patience}")
+                
+                # Early stopping check
+                if self.patience > 0 and self.patience_counter >= self.patience:
+                    print(f"\nEarly stopping triggered after {epoch} epochs!")
+                    self.early_stop = True
+                    break
             
             # Save regular checkpoint
             if epoch % self.args.save_freq == 0:
                 self.save_checkpoint(epoch, is_best=False)
         
         # Save final model and history
-        self.save_checkpoint(self.args.epochs, is_best=False)
-        self.save_history()
+        self.save_checkpoint(epoch, is_best=False)
         
-        print(f"\nTraining completed!")
+        if self.early_stop:
+            print(f"\nTraining stopped early at epoch {epoch}")
+        else:
+            print(f"\nTraining completed!")
         print(f"Best validation accuracy: {self.best_val_acc:.2f}%")
     
     def save_checkpoint(self, epoch, is_best=False):
@@ -221,6 +254,8 @@ class Trainer:
             'optimizer_state_dict': self.optimizer.state_dict(),
             'scheduler_state_dict': self.scheduler.state_dict(),
             'best_val_acc': self.best_val_acc,
+            'patience_counter': self.patience_counter,
+            'history': self.history,
             'args': self.args
         }
         
@@ -231,6 +266,9 @@ class Trainer:
         
         torch.save(checkpoint, path)
         print(f"Checkpoint saved to {path}")
+        
+        # Also save history separately for easy access
+        self.save_history()
     
     def save_history(self):
         """Save training history."""
@@ -241,6 +279,41 @@ class Trainer:
             json.dump(self.history, f, indent=2)
         
         print(f"Training history saved to {history_path}")
+    
+    def load_checkpoint(self, checkpoint_path):
+        """Load checkpoint to resume training."""
+        if not os.path.exists(checkpoint_path):
+            print(f"Warning: Checkpoint {checkpoint_path} not found. Starting from scratch.")
+            return
+        
+        print(f"Loading checkpoint from {checkpoint_path}")
+        checkpoint = torch.load(checkpoint_path, map_location=self.device, weights_only=False)
+        
+        # Load model state
+        self.model.load_state_dict(checkpoint['model_state_dict'])
+        
+        # Load optimizer state
+        self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        
+        # Load scheduler state
+        if 'scheduler_state_dict' in checkpoint:
+            self.scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+        
+        # Load training state
+        self.start_epoch = checkpoint['epoch'] + 1
+        self.best_val_acc = checkpoint.get('best_val_acc', 0.0)
+        
+        # Load history if exists
+        history_path = os.path.join(self.args.checkpoint_dir, f'{self.args.exp_name}_history.json')
+        if os.path.exists(history_path):
+            with open(history_path, 'r') as f:
+                self.history = json.load(f)
+            print(f"Loaded training history from {history_path}")
+        
+        # Load patience counter if exists
+        self.patience_counter = checkpoint.get('patience_counter', 0)
+        
+        print(f"Resumed from epoch {checkpoint['epoch']}, best val acc: {self.best_val_acc:.2f}%")
 
 
 def main():
@@ -269,6 +342,8 @@ def main():
     parser.add_argument('--lr_step', type=int, default=10, help='Learning rate decay step')
     parser.add_argument('--lr_gamma', type=float, default=0.5, help='Learning rate decay gamma')
     parser.add_argument('--clip_grad', type=float, default=1.0, help='Gradient clipping')
+    parser.add_argument('--patience', type=int, default=3, help='Early stopping patience (0 to disable)')
+    parser.add_argument('--resume', type=str, default=None, help='Path to checkpoint to resume training from')
     
     # Logging
     parser.add_argument('--exp_name', type=str, default='avqa_gnn', help='Experiment name')

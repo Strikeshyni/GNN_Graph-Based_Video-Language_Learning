@@ -61,10 +61,43 @@ class AVQA_Dataset(Dataset):
         with open(anno_path, 'r') as f:
             annotations = json.load(f)
         
-        # Normalize field names (MUSIC-AVQA uses 'question_content')
+        # Normalize field names and fill template values
         for anno in annotations:
-            if 'question_content' in anno and 'question' not in anno:
-                anno['question'] = anno['question_content']
+            # Get question content
+            question_raw = anno.get('question_content', anno.get('question', ''))
+            
+            # Fill template values (e.g., <Object>, <LR>, <FL>, <LRer>)
+            templ_values_str = anno.get('templ_values', '[]')
+            try:
+                import ast
+                templ_values = ast.literal_eval(templ_values_str) if isinstance(templ_values_str, str) else templ_values_str
+            except:
+                templ_values = []
+            
+            if templ_values and '<' in question_raw:
+                # Split question into words
+                words = question_raw.rstrip().split(' ')
+                # Remove trailing punctuation from last word
+                if words and words[-1] and words[-1][-1] in '?？':
+                    words[-1] = words[-1][:-1]
+                
+                # Replace placeholders with template values
+                p = 0
+                for i, word in enumerate(words):
+                    if '<' in word and p < len(templ_values):
+                        words[i] = templ_values[p]
+                        p += 1
+                
+                question_filled = ' '.join(words).strip()
+                if not question_filled.endswith('?'):
+                    question_filled += '?'
+                anno['question'] = question_filled
+            else:
+                anno['question'] = question_raw
+            
+            # Normalize answer field
+            if 'anser' in anno and 'answer' not in anno:
+                anno['answer'] = anno['anser']
         
         return annotations
     
@@ -92,10 +125,29 @@ class AVQA_Dataset(Dataset):
         return dummy_data
     
     def _build_answer_vocab(self) -> Dict[str, int]:
-        """Build vocabulary of answers."""
-        answers = set()
-        for anno in self.annotations:
-            answers.add(anno['answer'])
+        """
+        Build vocabulary of answers.
+        IMPORTANT: Always use the train set vocabulary to ensure consistent
+        indexing across train/val/test splits.
+        """
+        # Load train annotations to build a consistent vocabulary
+        train_anno_path = os.path.join(self.data_dir, 'train_annotations.json')
+        
+        if os.path.exists(train_anno_path):
+            with open(train_anno_path, 'r') as f:
+                train_annotations = json.load(f)
+            
+            answers = set()
+            for anno in train_annotations:
+                # Handle both 'answer' and 'anser' field names
+                ans = anno.get('answer', anno.get('anser', ''))
+                if ans:
+                    answers.add(ans)
+        else:
+            # Fallback: use current split's answers
+            answers = set()
+            for anno in self.annotations:
+                answers.add(anno['answer'])
         
         answer_to_idx = {ans: idx for idx, ans in enumerate(sorted(answers))}
         return answer_to_idx
@@ -137,7 +189,8 @@ class AVQA_Dataset(Dataset):
             'sg_data': sg_data,
             'qg_data': qg_data,
             'answer': torch.tensor(answer, dtype=torch.long),
-            'video_id': anno['video_id']
+            'video_id': anno['video_id'],
+            'question_text': anno['question']  # The filled question text
         }
     
     def _load_audio_features(self, anno: Dict) -> torch.Tensor:
@@ -234,8 +287,45 @@ def collate_avqa(batch: List[Dict]) -> Dict[str, torch.Tensor]:
         'sg_data': (sg_batch.x, sg_batch.edge_index, sg_batch.edge_attr, sg_batch.batch),
         'qg_data': (qg_batch.x, qg_batch.edge_index, qg_batch.edge_attr, qg_batch.batch),
         'answer': answers,
-        'video_ids': [item['video_id'] for item in batch]
+        'video_ids': [item['video_id'] for item in batch],
+        'questions': [item['question_text'] for item in batch]
     }
+
+
+def compute_class_weights(dataset: AVQA_Dataset) -> torch.Tensor:
+    """
+    Compute class weights inversely proportional to class frequency.
+    This helps combat class imbalance by penalizing errors on rare classes more.
+    
+    Args:
+        dataset: The training dataset
+        
+    Returns:
+        Tensor of class weights [num_classes]
+    """
+    from collections import Counter
+    
+    # Count occurrences of each answer
+    answer_counts = Counter()
+    for anno in dataset.annotations:
+        answer = anno['answer']
+        if answer in dataset.answer_to_idx:
+            answer_counts[dataset.answer_to_idx[answer]] += 1
+    
+    num_classes = len(dataset.answer_to_idx)
+    total_samples = sum(answer_counts.values())
+    
+    # Compute inverse frequency weights
+    weights = torch.zeros(num_classes)
+    for idx in range(num_classes):
+        count = answer_counts.get(idx, 1)  # Avoid division by zero
+        # Inverse frequency: fewer samples -> higher weight
+        weights[idx] = total_samples / (num_classes * count)
+    
+    # Normalize weights so that mean = 1
+    weights = weights / weights.mean()
+    
+    return weights
 
 
 def create_dataloaders(data_dir: str, batch_size: int = 4, num_workers: int = 4):
@@ -248,11 +338,14 @@ def create_dataloaders(data_dir: str, batch_size: int = 4, num_workers: int = 4)
         num_workers: Number of worker processes
         
     Returns:
-        Tuple of (train_loader, val_loader, test_loader)
+        Tuple of (train_loader, val_loader, test_loader, idx_to_answer, class_weights)
     """
     train_dataset = AVQA_Dataset(data_dir, split='train')
     val_dataset = AVQA_Dataset(data_dir, split='val')
     test_dataset = AVQA_Dataset(data_dir, split='test')
+    
+    # Compute class weights from training set
+    class_weights = compute_class_weights(train_dataset)
     
     train_loader = DataLoader(
         train_dataset,
@@ -278,4 +371,4 @@ def create_dataloaders(data_dir: str, batch_size: int = 4, num_workers: int = 4)
         collate_fn=collate_avqa
     )
     
-    return train_loader, val_loader, test_loader, train_dataset.idx_to_answer
+    return train_loader, val_loader, test_loader, train_dataset.idx_to_answer, class_weights

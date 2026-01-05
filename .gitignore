@@ -2,9 +2,12 @@
 
 gnn_venv/
 checkpoints/
+checkpoints_*/
 data/MUSIC-AVQA/
 logs/
 output/
 temp/
 *.log
 *.tmp
+
+*.zip

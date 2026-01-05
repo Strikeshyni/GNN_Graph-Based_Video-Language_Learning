@@ -25,7 +25,7 @@ class Evaluator:
         
         # Load data
         print("Loading dataset...")
-        _, _, self.test_loader, self.idx_to_answer = \
+        _, _, self.test_loader, self.idx_to_answer, _ = \
             create_dataloaders(args.data_dir, args.batch_size, args.num_workers)
         
         self.num_classes = len(self.idx_to_answer)
@@ -98,12 +98,16 @@ class Evaluator:
         # Compute metrics
         accuracy = 100.0 * np.mean(np.array(all_preds) == np.array(all_labels))
         
-        # Confusion matrix
-        cm = confusion_matrix(all_labels, all_preds)
+        # Get unique labels present in the data
+        unique_labels = sorted(set(all_labels) | set(all_preds))
         
-        # Classification report
-        target_names = [self.idx_to_answer[i] for i in range(self.num_classes)]
-        report = classification_report(all_labels, all_preds, target_names=target_names, 
+        # Confusion matrix
+        cm = confusion_matrix(all_labels, all_preds, labels=unique_labels)
+        
+        # Classification report - only include labels that are present
+        target_names = [self.idx_to_answer[i] for i in unique_labels]
+        report = classification_report(all_labels, all_preds, labels=unique_labels,
+                                      target_names=target_names, 
                                       output_dict=True, zero_division=0)
         
         return {

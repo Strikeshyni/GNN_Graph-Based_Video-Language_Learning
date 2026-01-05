@@ -27,7 +27,7 @@ class VisualTester:
         
         # Load data
         print("Loading dataset...")
-        _, _, self.test_loader, self.idx_to_answer = \
+        _, _, self.test_loader, self.idx_to_answer, _ = \
             create_dataloaders(args.data_dir, args.batch_size, args.num_workers)
         
         self.answer_to_idx = {v: k for k, v in self.idx_to_answer.items()}
@@ -41,7 +41,7 @@ class VisualTester:
         self.model.eval()
     
     def load_annotations(self, data_dir):
-        """Load test annotations to get questions."""
+        """Load test annotations to get questions with template values filled."""
         anno_path = os.path.join(data_dir, 'test_annotations.json')
         if os.path.exists(anno_path):
             with open(anno_path, 'r') as f:
@@ -50,8 +50,36 @@ class VisualTester:
             video_to_question = {}
             for anno in annotations:
                 video_id = anno.get('video_id', '')
-                question = anno.get('question', anno.get('question_content', 'Question not available'))
-                video_to_question[video_id] = question
+                question_raw = anno.get('question', anno.get('question_content', 'Question not available'))
+                
+                # Fill template values (e.g., <Object>, <LR>, <FL>, <LRer>)
+                templ_values_str = anno.get('templ_values', '[]')
+                try:
+                    import ast
+                    templ_values = ast.literal_eval(templ_values_str) if isinstance(templ_values_str, str) else templ_values_str
+                except:
+                    templ_values = []
+                
+                if templ_values and '<' in question_raw:
+                    # Split question into words
+                    words = question_raw.rstrip().split(' ')
+                    # Remove trailing punctuation from last word
+                    if words and words[-1] and words[-1][-1] in '?？':
+                        words[-1] = words[-1][:-1]
+                    
+                    # Replace placeholders with template values
+                    p = 0
+                    for i, word in enumerate(words):
+                        if '<' in word and p < len(templ_values):
+                            words[i] = templ_values[p]
+                            p += 1
+                    
+                    question_filled = ' '.join(words).strip()
+                    if not question_filled.endswith('?'):
+                        question_filled += '?'
+                    video_to_question[video_id] = question_filled
+                else:
+                    video_to_question[video_id] = question_raw
             return video_to_question
         return {}
     
@@ -283,6 +311,7 @@ Result: {status_symbol} {'CORRECT' if is_correct else 'INCORRECT'}
                 
                 answers = batch['answer'].to(self.device)
                 video_ids = batch['video_ids']
+                questions = batch.get('questions', [None] * len(video_ids))  # Get questions from batch
                 
                 # Forward pass
                 logits = self.model(audio_feat, visual_feat, question_feat, sg_data, qg_data)
@@ -306,8 +335,8 @@ Result: {status_symbol} {'CORRECT' if is_correct else 'INCORRECT'}
                     
                     # Visualize first N samples
                     if samples_visualized < num_samples:
-                        # Get question text from annotations
-                        question = self.annotations.get(video_id, f"Question about video {video_id}")
+                        # Get question text directly from batch (correct for each sample)
+                        question = questions[i] if questions[i] else f"Question about video {video_id}"
                         
                         save_path = f'./visualizations/predictions/sample_{samples_visualized+1}_{video_id}.png'
                         

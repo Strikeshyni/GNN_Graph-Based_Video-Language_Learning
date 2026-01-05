@@ -186,7 +186,10 @@ class AVQA_GNN(nn.Module):
         
         # Joint representation modules
         self.wv = Linear(self.out_channels, self.out_channels)
-        self.joint_linear = Bilinear(self.out_channels, self.out_channels, self.out_channels)
+        # Use element-wise product + linear instead of Bilinear (much fewer params)
+        # Original Bilinear(512, 512, 512) = 134M params!
+        # This approach: 512*512 = 262K params (500x fewer)
+        self.joint_linear = Linear(self.out_channels, self.out_channels)
         
         # Audio encoding
         self.lin_a = Sequential(
@@ -270,8 +273,8 @@ class AVQA_GNN(nn.Module):
         v_joint = self.wv(video.squeeze(1))  # [B, 512]
         q_joint = query.squeeze(1)  # [B, 512]
         
-        # Combined joint representation
-        vq_joint = self.joint_linear(v_joint, q_joint)  # [B, 512]
+        # Combined joint representation using element-wise product + linear
+        vq_joint = self.joint_linear(v_joint * q_joint)  # [B, 512]
         
         # 3. Encode audio-visual features
         audio_feat = self.lin_a(audio_feat)  # [B, T, 512]
