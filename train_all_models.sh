@@ -15,9 +15,10 @@ echo ""
 # - batch_size 64: bon équilibre vitesse/mémoire
 # - lr 5e-4: convergence plus rapide
 
-EPOCHS=50
-BATCH_SIZE=32
-LR=0.0001
+EPOCHS=1
+BATCH_SIZE=64
+LR=0.0005
+CHECKPOINT_DIR=./checkpoints_big_models
 
 echo "Configuration:"
 echo "  - Époques: $EPOCHS"
@@ -38,7 +39,8 @@ python3 train.py \
     --gnn_layers 2 \
     --gnn_heads 4 \
     --exp_name avqa_gnn_gat \
-    --resume ./checkpoints/avqa_gnn_gat_best.pth
+    --resume $CHECKPOINT_DIR/avqa_gnn_gat_best.pth \
+    --checkpoint_dir $CHECKPOINT_DIR
 echo ""
 
 # 2. GCN (Graph Convolutional Network)
@@ -53,7 +55,8 @@ python3 train.py \
     --num_workers 8 \
     --gnn_layers 2 \
     --exp_name avqa_gnn_gcn \
-    --resume ./checkpoints/avqa_gnn_gcn_best.pth
+    --resume $CHECKPOINT_DIR/avqa_gnn_gcn_best.pth \
+    --checkpoint_dir $CHECKPOINT_DIR
 
 echo ""
 
@@ -69,7 +72,8 @@ python3 train.py \
     --num_workers 8 \
     --gnn_layers 2 \
     --exp_name avqa_gnn_graphsage \
-    --resume ./checkpoints/avqa_gnn_graphsage_best.pth
+    --resume $CHECKPOINT_DIR/avqa_gnn_graphsage_best.pth \
+    --checkpoint_dir $CHECKPOINT_DIR
 
 echo ""
 
@@ -85,14 +89,15 @@ python3 train.py \
     --num_workers 8 \
     --gnn_layers 2 \
     --exp_name avqa_gnn_gin \
-    --resume ./checkpoints/avqa_gnn_gin_best.pth
+    --resume $CHECKPOINT_DIR/avqa_gnn_gin_best.pth \
+    --checkpoint_dir $CHECKPOINT_DIR
 
 echo ""
 echo "Résultats sauvegardés dans:"
-echo "  - ./checkpoints/avqa_gnn_gat_best.pth"
-echo "  - ./checkpoints/avqa_gnn_gcn_best.pth"
-echo "  - ./checkpoints/avqa_gnn_graphsage_best.pth"
-echo "  - ./checkpoints/avqa_gnn_gin_best.pth"
+echo "  - $CHECKPOINT_DIR/avqa_gnn_gat_best.pth"
+echo "  - $CHECKPOINT_DIR/avqa_gnn_gcn_best.pth"
+echo "  - $CHECKPOINT_DIR/avqa_gnn_graphsage_best.pth"
+echo "  - $CHECKPOINT_DIR/avqa_gnn_gin_best.pth"
 echo ""
 echo "Pour comparer les résultats:"
 echo "  python3 evaluate.py --compare_architectures"

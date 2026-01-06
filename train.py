@@ -342,7 +342,7 @@ def main():
     parser.add_argument('--lr_step', type=int, default=10, help='Learning rate decay step')
     parser.add_argument('--lr_gamma', type=float, default=0.5, help='Learning rate decay gamma')
     parser.add_argument('--clip_grad', type=float, default=1.0, help='Gradient clipping')
-    parser.add_argument('--patience', type=int, default=3, help='Early stopping patience (0 to disable)')
+    parser.add_argument('--patience', type=int, default=5, help='Early stopping patience (0 to disable)')
     parser.add_argument('--resume', type=str, default=None, help='Path to checkpoint to resume training from')
     
     # Logging

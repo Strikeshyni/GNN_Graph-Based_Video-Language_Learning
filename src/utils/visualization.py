@@ -271,22 +271,73 @@ class PerformanceAnalyzer:
             class_names: List of class names
             save_path: Path to save the figure
         """
-        plt.figure(figsize=(12, 10))
+        # Utiliser la taille réelle de la matrice de confusion
+        cm_size = confusion_matrix.shape[0]
+        
+        # Ajuster class_names si nécessaire
+        if len(class_names) > cm_size:
+            class_names = class_names[:cm_size]
+        elif len(class_names) < cm_size:
+            # Ajouter des noms génériques si manquants
+            class_names = list(class_names) + [f'class_{i}' for i in range(len(class_names), cm_size)]
+        
+        num_classes = cm_size
+        
+        # Adapter la taille de la figure au nombre de classes
+        # Plus de classes = figure plus grande
+        fig_size = max(16, num_classes * 0.5)
+        plt.figure(figsize=(fig_size, fig_size * 0.85))
         
         # Normalize confusion matrix
-        cm_normalized = confusion_matrix.astype('float') / confusion_matrix.sum(axis=1)[:, np.newaxis]
+        row_sums = confusion_matrix.sum(axis=1)[:, np.newaxis]
+        # Éviter la division par zéro
+        row_sums[row_sums == 0] = 1
+        cm_normalized = confusion_matrix.astype('float') / row_sums
         
-        sns.heatmap(cm_normalized, annot=True, fmt='.2f', cmap='Blues',
-                   xticklabels=class_names, yticklabels=class_names,
-                   cbar_kws={'label': 'Normalized Count'})
+        # Adapter la taille de la police selon le nombre de classes
+        if num_classes > 30:
+            annot_fontsize = 5
+            label_fontsize = 6
+        elif num_classes > 20:
+            annot_fontsize = 6
+            label_fontsize = 7
+        elif num_classes > 10:
+            annot_fontsize = 7
+            label_fontsize = 8
+        else:
+            annot_fontsize = 9
+            label_fontsize = 10
+        
+        # Créer les annotations personnalisées (n'afficher que les valeurs > 0)
+        annot_matrix = np.empty_like(cm_normalized, dtype=object)
+        for i in range(num_classes):
+            for j in range(num_classes):
+                val = cm_normalized[i, j]
+                if val > 0.01:  # N'afficher que si > 1%
+                    annot_matrix[i, j] = f'{val:.2f}'
+                else:
+                    annot_matrix[i, j] = ''
+        
+        # Créer la heatmap
+        ax = sns.heatmap(cm_normalized, annot=annot_matrix, fmt='', cmap='Blues',
+                        xticklabels=class_names, yticklabels=class_names,
+                        cbar_kws={'label': 'Normalized Count', 'shrink': 0.8},
+                        annot_kws={'size': annot_fontsize},
+                        linewidths=0.5, linecolor='lightgray',
+                        square=True)
+        
+        # Configurer les labels des axes avec rotation pour lisibilité
+        plt.xticks(rotation=45, ha='right', fontsize=label_fontsize)
+        plt.yticks(rotation=0, fontsize=label_fontsize)
         
         plt.xlabel('Predicted Label', fontsize=12)
         plt.ylabel('True Label', fontsize=12)
-        plt.title('Confusion Matrix', fontsize=14, fontweight='bold')
+        plt.title(f'Confusion Matrix ({num_classes} classes)', fontsize=14, fontweight='bold')
         plt.tight_layout()
         
         if save_path:
-            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            # Utiliser un DPI plus élevé pour plus de détails
+            plt.savefig(save_path, dpi=200, bbox_inches='tight')
             print(f"Confusion matrix saved to {save_path}")
         else:
             plt.show()

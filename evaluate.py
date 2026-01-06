@@ -30,15 +30,22 @@ class Evaluator:
         
         self.num_classes = len(self.idx_to_answer)
         
-    def load_model(self, checkpoint_path, gnn_type='GAT'):
+    def load_model(self, checkpoint_path, gnn_type=None):
         """Load a trained model from checkpoint."""
         checkpoint = torch.load(checkpoint_path, map_location=self.device, weights_only=False)
         args = checkpoint['args']
         
-        # Create model
+        # Get GNN type from checkpoint args if not specified
+        saved_gnn_type = getattr(args, 'gnn_type', 'GAT')
+        if gnn_type is None:
+            gnn_type = saved_gnn_type
+        
+        print(f"Loading model with GNN type: {gnn_type}")
+        
+        # Create model with saved args
         model = AVQA_GNN(args).to(self.device)
         
-        # Replace GNN if needed
+        # Replace GNN if the saved model used a different GNN type
         if gnn_type != 'GAT':
             model.scene_gnn = create_gnn_stack(
                 gnn_type,
@@ -58,10 +65,25 @@ class Evaluator:
                 dropout=args.dropout
             ).to(self.device)
         
-        # Load weights
-        model.load_state_dict(checkpoint['model_state_dict'])
-        model.eval()
+        # Handle compatibility between joint_linear and bilinear versions
+        state_dict = checkpoint['model_state_dict']
+        model_state = model.state_dict()
         
+        # Check if checkpoint has joint_linear but model expects bilinear (or vice versa)
+        if 'joint_linear.weight' in state_dict and 'bilinear.weight' in model_state:
+            print("Warning: Checkpoint uses joint_linear, but model expects bilinear. Skipping those weights.")
+            # Remove incompatible keys
+            state_dict = {k: v for k, v in state_dict.items() if not k.startswith('joint_linear')}
+            model.load_state_dict(state_dict, strict=False)
+        elif 'bilinear.weight' in state_dict and 'joint_linear.weight' in model_state:
+            print("Warning: Checkpoint uses bilinear, but model expects joint_linear. Skipping those weights.")
+            state_dict = {k: v for k, v in state_dict.items() if not k.startswith('bilinear')}
+            model.load_state_dict(state_dict, strict=False)
+        else:
+            # Load weights normally
+            model.load_state_dict(state_dict)
+        
+        model.eval()
         return model
     
     def evaluate(self, model):

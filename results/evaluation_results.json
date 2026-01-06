@@ -1,78 +1,264 @@
 {
-  "accuracy": 8.0,
+  "accuracy": 4.442025040827436,
   "classification_report": {
-    "drums": {
-      "precision": 0.08,
-      "recall": 0.5,
-      "f1-score": 0.13793103448275862,
-      "support": 8.0
+    "accordion": {
+      "precision": 0.07880434782608696,
+      "recall": 0.26851851851851855,
+      "f1-score": 0.12184873949579832,
+      "support": 108.0
     },
-    "guitar": {
+    "acoustic_guitar": {
+      "precision": 0.06030701754385965,
+      "recall": 0.4296875,
+      "f1-score": 0.10576923076923077,
+      "support": 128.0
+    },
+    "bagpipe": {
+      "precision": 0.08275862068965517,
+      "recall": 0.3157894736842105,
+      "f1-score": 0.13114754098360656,
+      "support": 38.0
+    },
+    "banjo": {
+      "precision": 0.0365296803652968,
+      "recall": 0.3018867924528302,
+      "f1-score": 0.06517311608961303,
+      "support": 53.0
+    },
+    "bassoon": {
       "precision": 0.0,
       "recall": 0.0,
       "f1-score": 0.0,
-      "support": 11.0
+      "support": 74.0
+    },
+    "cello": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 136.0
+    },
+    "clarinet": {
+      "precision": 0.02631578947368421,
+      "recall": 0.046511627906976744,
+      "f1-score": 0.03361344537815126,
+      "support": 86.0
+    },
+    "congas": {
+      "precision": 0.03765690376569038,
+      "recall": 0.42857142857142855,
+      "f1-score": 0.06923076923076923,
+      "support": 21.0
+    },
+    "drum": {
+      "precision": 0.05219206680584551,
+      "recall": 0.45454545454545453,
+      "f1-score": 0.09363295880149813,
+      "support": 55.0
+    },
+    "eight": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 6.0
+    },
+    "electric_bass": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 31.0
+    },
+    "erhu": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 61.0
+    },
+    "five": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 26.0
+    },
+    "flute": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 104.0
+    },
+    "four": {
+      "precision": 0.004651162790697674,
+      "recall": 0.01694915254237288,
+      "f1-score": 0.0072992700729927005,
+      "support": 118.0
+    },
+    "guzheng": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 60.0
+    },
+    "indoor": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 235.0
     },
     "left": {
       "precision": 0.0,
       "recall": 0.0,
       "f1-score": 0.0,
-      "support": 9.0
+      "support": 173.0
     },
-    "no": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1-score": 0.0,
-      "support": 7.0
+    "middle": {
+      "precision": 0.019230769230769232,
+      "recall": 0.017241379310344827,
+      "f1-score": 0.01818181818181818,
+      "support": 116.0
     },
-    "piano": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1-score": 0.0,
-      "support": 13.0
-    },
-    "right": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1-score": 0.0,
-      "support": 12.0
-    },
-    "three": {
-      "precision": 0.08163265306122448,
-      "recall": 0.36363636363636365,
-      "f1-score": 0.13333333333333333,
-      "support": 11.0
-    },
-    "two": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1-score": 0.0,
-      "support": 8.0
-    },
-    "violin": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1-score": 0.0,
-      "support": 11.0
-    },
-    "yes": {
+    "more than ten": {
       "precision": 0.0,
       "recall": 0.0,
       "f1-score": 0.0,
       "support": 10.0
     },
-    "accuracy": 0.08,
+    "nine": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 2.0
+    },
+    "no": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 1768.0
+    },
+    "one": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 820.0
+    },
+    "outdoor": {
+      "precision": 0.09090909090909091,
+      "recall": 0.011363636363636364,
+      "f1-score": 0.020202020202020204,
+      "support": 88.0
+    },
+    "piano": {
+      "precision": 0.03812137846904544,
+      "recall": 0.7485029940119761,
+      "f1-score": 0.07254788160185723,
+      "support": 167.0
+    },
+    "pipa": {
+      "precision": 0.02691337258200168,
+      "recall": 0.6808510638297872,
+      "f1-score": 0.05177993527508091,
+      "support": 47.0
+    },
+    "right": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 168.0
+    },
+    "saxophone": {
+      "precision": 0.046762589928057555,
+      "recall": 0.12745098039215685,
+      "f1-score": 0.06842105263157895,
+      "support": 102.0
+    },
+    "seven": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 3.0
+    },
+    "simultaneously": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 138.0
+    },
+    "six": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 15.0
+    },
+    "suona": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 24.0
+    },
+    "three": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 219.0
+    },
+    "trumpet": {
+      "precision": 0.06904761904761905,
+      "recall": 0.3670886075949367,
+      "f1-score": 0.11623246492985972,
+      "support": 79.0
+    },
+    "tuba": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 72.0
+    },
+    "two": {
+      "precision": 1.0,
+      "recall": 0.002398081534772182,
+      "f1-score": 0.004784688995215311,
+      "support": 834.0
+    },
+    "ukulele": {
+      "precision": 0.030303030303030304,
+      "recall": 0.021739130434782608,
+      "f1-score": 0.02531645569620253,
+      "support": 92.0
+    },
+    "violin": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 216.0
+    },
+    "xylophone": {
+      "precision": 0.047787610619469026,
+      "recall": 0.6923076923076923,
+      "f1-score": 0.08940397350993377,
+      "support": 39.0
+    },
+    "yes": {
+      "precision": 0.32857142857142857,
+      "recall": 0.009547530095475302,
+      "f1-score": 0.01855586930213796,
+      "support": 2409.0
+    },
+    "zero": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 244.0
+    },
+    "accuracy": 0.04442025040827436,
     "macro avg": {
-      "precision": 0.01616326530612245,
-      "recall": 0.08636363636363636,
-      "f1-score": 0.027126436781609198,
-      "support": 100.0
+      "precision": 0.05065518241271532,
+      "recall": 0.1205110010755452,
+      "f1-score": 0.027149786125545482,
+      "support": 9185.0
     },
     "weighted avg": {
-      "precision": 0.015379591836734692,
-      "recall": 0.08,
-      "f1-score": 0.025701149425287353,
-      "support": 100.0
+      "precision": 0.1835657161968782,
+      "recall": 0.04442025040827436,
+      "f1-score": 0.014653931279823906,
+      "support": 9185.0
     }
   }
 }
